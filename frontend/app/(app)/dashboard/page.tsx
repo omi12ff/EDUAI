@@ -11,6 +11,7 @@ import {
   MessageCircle,
 } from 'lucide-react';
 
+import { getCurrentPlannerDay, plannerDays } from '@/lib/planner-days';
 import { api } from '@/services/api';
 
 interface Schedule {
@@ -84,15 +85,6 @@ interface FpunaAttention {
   detail: string;
   tone: AttentionTone;
 }
-
-const plannerDays = [
-  'Lunes',
-  'Martes',
-  'Miercoles',
-  'Jueves',
-  'Viernes',
-  'Sabado',
-];
 
 const slotLabels: Record<GradeSlot, string> = {
   P1: '1er. parcial',
@@ -403,6 +395,10 @@ export default function DashboardPage() {
       })
       .finally(() => setLoading(false));
   }, [fetchOverview]);
+
+  useEffect(() => {
+    setSelectedDay(getCurrentPlannerDay());
+  }, []);
 
   const scheduleForDay = useMemo(() => {
     return allSchedules

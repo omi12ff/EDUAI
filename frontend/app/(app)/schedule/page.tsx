@@ -21,6 +21,7 @@ import {
   X,
 } from 'lucide-react';
 
+import { getCurrentPlannerDay, plannerDays } from '@/lib/planner-days';
 import { api } from '@/services/api';
 
 interface Subject {
@@ -99,15 +100,6 @@ interface SubjectItem {
   subject: CatalogSubject;
 }
 
-const days = [
-  'Lunes',
-  'Martes',
-  'Miercoles',
-  'Jueves',
-  'Viernes',
-  'Sabado',
-];
-
 const stepLabels = [
   'Carrera',
   'Materias',
@@ -170,6 +162,10 @@ export default function SchedulePage() {
   useEffect(() => {
     fetchData().catch((error) => console.error(error));
   }, [fetchData]);
+
+  useEffect(() => {
+    setSelectedDay(getCurrentPlannerDay());
+  }, []);
 
   const selectedCareer = useMemo(() => {
     return (
@@ -503,7 +499,7 @@ export default function SchedulePage() {
         </div>
 
         <div className="edu-mobile-scroll flex gap-2 overflow-x-auto px-4 pb-4 sm:flex-wrap">
-          {days.map((dayOption) => (
+          {plannerDays.map((dayOption) => (
             <button
               key={dayOption}
               onClick={() => setSelectedDay(dayOption)}
@@ -1106,7 +1102,7 @@ function PreviewStep({
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
-        {days.map((day) => {
+        {plannerDays.map((day) => {
           const dayBlocks = blocks
             .filter((block) => sameText(block.day, day))
             .sort((a, b) => a.startTime.localeCompare(b.startTime));
