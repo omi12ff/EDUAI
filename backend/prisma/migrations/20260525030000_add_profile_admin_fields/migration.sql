@@ -1,0 +1,25 @@
+ALTER TABLE "User"
+ADD COLUMN "country" TEXT NOT NULL DEFAULT 'Paraguay',
+ADD COLUMN "city" TEXT NOT NULL DEFAULT 'Asuncion',
+ADD COLUMN "timeZone" TEXT NOT NULL DEFAULT 'America/Asuncion',
+ADD COLUMN "identityNumber" TEXT,
+ADD COLUMN "campus" TEXT NOT NULL DEFAULT 'Sede Central',
+ADD COLUMN "career" TEXT,
+ADD COLUMN "lastLoginAt" TIMESTAMP(3),
+ADD COLUMN "bannedAt" TIMESTAMP(3),
+ADD COLUMN "bannedReason" TEXT,
+ADD COLUMN "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;
+
+UPDATE "User"
+SET "role" = 'ADMIN'
+WHERE "id" = (
+  SELECT "id"
+  FROM "User"
+  ORDER BY "createdAt" ASC
+  LIMIT 1
+)
+AND NOT EXISTS (
+  SELECT 1
+  FROM "User"
+  WHERE "role" = 'ADMIN'
+);

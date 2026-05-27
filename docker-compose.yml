@@ -1,0 +1,25 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: eduai_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: eduai
+      POSTGRES_PASSWORD: eduai123
+      POSTGRES_DB: eduai_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    container_name: eduai_redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+volumes:
+  postgres_data:

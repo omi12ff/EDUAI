@@ -1,0 +1,16 @@
+{
+  "name": "eduai",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm --prefix backend run start:dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix backend run build && npm --prefix frontend run build",
+    "test": "npm --prefix backend test -- --runInBand",
+    "lint": "npm --prefix frontend run lint && npm --prefix backend run lint",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "npm --prefix backend exec prisma migrate deploy",
+    "db:generate": "npm --prefix backend exec prisma generate"
+  }
+}

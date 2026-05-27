@@ -1,0 +1,17 @@
+UPDATE "User"
+SET "role" = 'STUDENT'
+WHERE "role" = 'TEACHER';
+
+ALTER TABLE "User" ALTER COLUMN "role" DROP DEFAULT;
+
+ALTER TYPE "Role" RENAME TO "Role_old";
+
+CREATE TYPE "Role" AS ENUM ('ADMIN', 'STUDENT');
+
+ALTER TABLE "User"
+ALTER COLUMN "role" TYPE "Role"
+USING ("role"::text::"Role");
+
+ALTER TABLE "User" ALTER COLUMN "role" SET DEFAULT 'STUDENT';
+
+DROP TYPE "Role_old";

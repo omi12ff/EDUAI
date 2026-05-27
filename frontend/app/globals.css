@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+:root {
+  --background: #eef4fb;
+  --foreground: #0f172a;
+  --edu-bg: #eef4fb;
+  --edu-surface: #ffffff;
+  --edu-surface-soft: #e8f2ff;
+  --edu-primary: #2563eb;
+  --edu-primary-hover: #1e40af;
+  --edu-accent: #0f766e;
+  --edu-accent-soft: #dff7f4;
+  --edu-border: #c8d6e8;
+  --edu-text: #0f172a;
+  --edu-muted: #475569;
+  --edu-success: #059669;
+  --edu-warning: #d97706;
+  --edu-danger: #dc2626;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+@layer components {
+  .edu-page {
+    min-height: calc(100vh - 64px);
+    background:
+      radial-gradient(circle at top left, rgba(37, 99, 235, 0.1), transparent 34rem),
+      radial-gradient(circle at 85% 0%, rgba(15, 118, 110, 0.1), transparent 30rem),
+      linear-gradient(180deg, #f8fbff 0%, var(--edu-bg) 46%, #edf3fa 100%);
+    color: #0f172a;
+    padding: 1rem;
+  }
+
+  .edu-mobile-scroll {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .edu-mobile-scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .edu-card {
+    border: 1px solid var(--edu-border);
+    background: rgba(255, 255, 255, 0.92);
+    border-radius: 0.75rem;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(10px);
+    transition:
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms ease,
+      background 180ms ease;
+  }
+
+  .edu-card:hover {
+    border-color: #adc0da;
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.1);
+  }
+
+  .edu-title {
+    color: var(--edu-text);
+    font-weight: 700;
+  }
+
+  .edu-muted {
+    color: var(--edu-muted);
+  }
+
+  .edu-input {
+    width: 100%;
+    border: 1px solid var(--edu-border);
+    background: rgba(255, 255, 255, 0.94);
+    color: var(--edu-text);
+    border-radius: 0.625rem;
+    padding: 0.75rem;
+    outline: none;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      background 160ms ease;
+  }
+
+  .edu-input:focus {
+    border-color: var(--edu-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  .edu-button {
+    border-radius: 0.625rem;
+    background: linear-gradient(135deg, var(--edu-primary), #1d8bd8);
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+    transition:
+      box-shadow 160ms ease,
+      filter 160ms ease,
+      transform 160ms ease;
+  }
+
+  .edu-button:hover {
+    filter: saturate(1.08) brightness(0.98);
+    box-shadow: 0 16px 28px rgba(37, 99, 235, 0.28);
+    transform: translateY(-1px);
+  }
+
+  .edu-button-secondary {
+    border-radius: 0.625rem;
+    background: #e8eef7;
+    color: var(--edu-text);
+    font-weight: 600;
+    transition:
+      background 160ms ease,
+      transform 160ms ease;
+  }
+
+  .edu-button-secondary:hover {
+    background: #dbe6f4;
+    transform: translateY(-1px);
+  }
+
+  .edu-chip {
+    border-radius: 999px;
+    background: linear-gradient(135deg, #e7f9f6, #e8f2ff);
+    color: #0e7490;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.65rem;
+  }
+
+  .edu-topbar {
+    background: linear-gradient(135deg, #1d4ed8, #0f766e);
+    color: white;
+  }
+
+  .edu-day-panel {
+    animation: edu-day-panel-in 260ms ease both;
+  }
+
+  .edu-schedule-item {
+    animation: edu-schedule-item-in 280ms ease both;
+  }
+
+  .edu-soft-panel {
+    border: 1px solid var(--edu-border);
+    background: linear-gradient(135deg, #ffffff, #f2f7fd);
+    border-radius: 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  @layer components {
+    .edu-page {
+      padding: 2rem;
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  @layer components {
+    .edu-page {
+      min-height: calc(100vh - 80px);
+    }
+  }
+}
+
+@keyframes edu-day-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes edu-schedule-item-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

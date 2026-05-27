@@ -1,0 +1,346 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum GradeKind {
+  PARCIAL
+  FINAL
+  RECUPERATORIO
+  TAREA
+  PRACTICA
+  LABORATORIO
+  PROYECTO
+  ASISTENCIA
+  OTRO
+}
+
+enum IntegrationProvider {
+  EDUCA
+  EALU
+  POLIPLANNER
+  MANUAL
+}
+
+enum IntegrationStatus {
+  DISCONNECTED
+  CONNECTED
+  NEEDS_ACTION
+  ERROR
+}
+
+enum SyncRunStatus {
+  RUNNING
+  SUCCESS
+  NEEDS_REVIEW
+  ERROR
+}
+
+enum AcademicEventKind {
+  SUBJECT
+  GRADE
+  ASSIGNMENT
+  EXAM
+  SCHEDULE
+  DOCUMENT
+  ANNOUNCEMENT
+  OTHER
+}
+
+enum ImportReviewStatus {
+  PENDING
+  APPLIED
+  DISMISSED
+}
+
+model User {
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  password       String
+  role           Role      @default(STUDENT)
+  country        String    @default("Paraguay")
+  city           String    @default("Asuncion")
+  timeZone       String    @default("America/Asuncion")
+  identityNumber String?
+  campus         String    @default("Sede Central")
+  career         String?
+  lastLoginAt    DateTime?
+  bannedAt       DateTime?
+  bannedReason   String?
+  emailVerifiedAt DateTime?
+
+  assignments            Assignment[]
+  enrollments            Enrollment[]
+  chatHistory            ChatHistory[]
+  documents              Document[]
+  grades                 Grade[]
+  integrationConnections IntegrationConnection[]
+  importedEvents         ImportedAcademicEvent[]
+  passwordResetTokens    PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+  subjects               Subject[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Career {
+  id   String  @id @default(uuid())
+  code String? @unique
+  name String  @unique
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PasswordResetToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  userId String
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+}
+
+model Subject {
+  id       String @id @default(uuid())
+  name     String
+  teacher  String
+  credits  Int
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  assignments Assignment[]
+  enrollments Enrollment[]
+  schedules   Schedule[]
+  exams       Exam[]
+  grades      Grade[]
+  importedEvents ImportedAcademicEvent[]
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Assignment {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  dueDate     DateTime
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Enrollment {
+  id String @id @default(uuid())
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model ChatHistory {
+  id      String @id @default(uuid())
+  role    String
+  message String
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Schedule {
+  id        String @id @default(uuid())
+  day       String
+  startTime String
+  endTime   String
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Exam {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  date        DateTime
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  grades Grade[]
+
+  createdAt DateTime @default(now())
+}
+
+model Document {
+  id        String   @id @default(uuid())
+  title     String
+  fileName  String
+  content   String
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+}
+
+model Grade {
+  id        String    @id @default(uuid())
+  title     String
+  type      GradeKind @default(OTRO)
+  score     Float
+  maxScore  Float     @default(5)
+  weight    Float?
+  date      DateTime?
+  notes     String?
+
+  source     IntegrationProvider @default(MANUAL)
+  externalId String?
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  subjectId String
+  subject   Subject @relation(fields: [subjectId], references: [id])
+
+  examId String?
+  exam   Exam?   @relation(fields: [examId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, source, externalId])
+  @@index([userId, subjectId])
+  @@index([examId])
+}
+
+model IntegrationConnection {
+  id       String              @id @default(uuid())
+  provider IntegrationProvider
+  label    String
+  baseUrl  String?
+  username String?
+  status   IntegrationStatus   @default(DISCONNECTED)
+
+  lastSyncAt DateTime?
+  lastError  String?
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  syncRuns       SyncRun[]
+  importedEvents ImportedAcademicEvent[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, provider])
+}
+
+model SyncRun {
+  id        String        @id @default(uuid())
+  provider  IntegrationProvider
+  status    SyncRunStatus @default(RUNNING)
+  startedAt DateTime      @default(now())
+  finishedAt DateTime?
+
+  imported Int @default(0)
+  updated  Int @default(0)
+  skipped  Int @default(0)
+  message  String?
+
+  connectionId String
+  connection   IntegrationConnection @relation(fields: [connectionId], references: [id])
+}
+
+model ImportedAcademicEvent {
+  id          String             @id @default(uuid())
+  provider    IntegrationProvider
+  kind        AcademicEventKind
+  title       String
+  description String?
+  eventDate   DateTime?
+  raw         Json?
+  status      ImportReviewStatus @default(PENDING)
+
+  userId String
+  user   User @relation(fields: [userId], references: [id])
+
+  subjectId String?
+  subject   Subject? @relation(fields: [subjectId], references: [id])
+
+  connectionId String?
+  connection   IntegrationConnection? @relation(fields: [connectionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, status])
+  @@index([provider, kind])
+}
+
+model AcademicImport {
+  id        String   @id @default(uuid())
+
+  career    String
+  subject   String
+  semester  String?
+  group     String?
+  teacher   String?
+  email     String?
+
+  firstPartialDate  String?
+  secondPartialDate String?
+  firstFinalDate    String?
+  secondFinalDate   String?
+
+  monday    String?
+  tuesday   String?
+  wednesday String?
+  thursday  String?
+  friday    String?
+
+  sourceFile String?
+
+  createdAt DateTime @default(now())
+}
