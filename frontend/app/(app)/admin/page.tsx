@@ -262,7 +262,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-3 text-sm md:grid-cols-4 xl:grid-cols-2">
                 <MiniStat label="Materias" value={user._count.subjects} />
-                <MiniStat label="Tareas" value={user._count.assignments} />
+                <MiniStat label="Pendientes" value={user._count.assignments} />
                 <MiniStat label="Notas" value={user._count.grades} />
                 <MiniStat label="Chat" value={user._count.chatHistory} />
               </div>

@@ -33,7 +33,7 @@ interface AiAction {
 const welcomeMessage: Message = {
   role: 'assistant',
   content:
-    'Hola, soy EduAI. Puedo ayudarte con materias, tareas, examenes y responder preguntas sobre los PDFs que subas aca.',
+    'Hola, soy EduAI. Puedo ayudarte con materias, examenes, notas y responder preguntas sobre los PDFs que subas aca.',
 };
 
 export default function AiChatPage() {
@@ -352,7 +352,7 @@ export default function AiChatPage() {
           value={message}
           onChange={(event) => setMessage(event.target.value)}
           onKeyDown={(event) => event.key === 'Enter' && sendMessage()}
-          placeholder="Preguntame sobre tus materias, tareas o PDFs..."
+          placeholder="Preguntame sobre tus materias, examenes o PDFs..."
           className="edu-input flex-1 p-4 sm:p-5"
         />
 

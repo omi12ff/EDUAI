@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
+  CheckCircle2,
   GraduationCap,
   Loader2,
   LockKeyhole,
@@ -405,57 +406,84 @@ export default function LoginPage() {
       theme: 'outline',
       size: 'large',
       text: mode === 'signup' ? 'signup_with' : 'continue_with',
-      shape: 'rectangular',
-      width: 360,
+      shape: 'pill',
+      width: Math.min(390, Math.max(280, googleButtonRef.current.clientWidth)),
     });
   }, [googleReady, handleGoogleCredential, mode]);
 
   return (
-    <div className="min-h-screen bg-[var(--edu-bg)] p-3 text-[var(--edu-text)] sm:p-6">
-      <div className="mx-auto grid min-h-[calc(100vh-24px)] max-w-6xl overflow-hidden rounded-2xl border border-[var(--edu-border)] bg-white shadow-2xl sm:min-h-[calc(100vh-48px)] lg:grid-cols-[0.9fr_1.1fr]">
-        <section className="edu-topbar hidden flex-col justify-between p-8 text-white lg:flex">
-          <div>
-            <div className="mb-8 flex items-center gap-3">
-              <div className="grid h-12 w-12 place-items-center rounded-xl bg-white/15">
+    <main className="relative min-h-dvh overflow-hidden bg-[#061632] px-3 py-5 text-[var(--edu-text)] sm:px-6 lg:px-8">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_12%,rgba(59,130,246,0.38),transparent_28rem),radial-gradient(circle_at_82%_18%,rgba(20,184,166,0.28),transparent_26rem),linear-gradient(135deg,#07142f_0%,#123985_48%,#0e7c75_100%)]" />
+      <div className="absolute inset-0 opacity-25 [background-image:linear-gradient(rgba(255,255,255,0.12)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.12)_1px,transparent_1px)] [background-size:44px_44px]" />
+      <div className="absolute left-6 top-20 h-24 w-24 rounded-3xl border border-white/20 bg-white/5 blur-[1px] sm:left-16" />
+      <div className="absolute bottom-16 right-8 h-32 w-32 rounded-full bg-cyan-300/20 blur-2xl" />
+
+      <div className="relative mx-auto flex min-h-[calc(100dvh-2.5rem)] max-w-6xl items-center justify-center">
+        <div className="grid w-full gap-5 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
+          <section className="rounded-[1.75rem] border border-white/15 bg-white/10 p-5 text-white shadow-2xl backdrop-blur-md sm:p-7 lg:min-h-[620px] lg:p-8">
+            <div className="flex items-center gap-3">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/15 shadow-lg ring-1 ring-white/20">
                 <GraduationCap size={29} />
               </div>
               <div>
-                <h1 className="text-3xl font-bold">EDUAI</h1>
-                <p className="text-sm text-cyan-50">
+                <h1 className="text-3xl font-bold tracking-tight">EDUAI</h1>
+                <p className="text-sm text-cyan-50/90">
                   Tu centro academico en un solo lugar
                 </p>
               </div>
             </div>
 
-            <h2 className="max-w-md text-4xl font-bold leading-tight">
-              Organiza materias, notas, tareas y horarios con ayuda de IA.
-            </h2>
-            <p className="mt-5 max-w-md text-sm leading-6 text-cyan-50">
-              Crea una cuenta, carga tu horario FPUNA y deja que EduAI te ayude
-              a mantener el semestre bajo control.
-            </p>
-          </div>
+            <div className="mt-8 lg:mt-20">
+              <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-cyan-50">
+                FPUNA + IA
+              </span>
+              <h2 className="mt-5 max-w-xl text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
+                Organiza tu semestre con una cuenta academica inteligente.
+              </h2>
+              <p className="mt-5 max-w-lg text-sm leading-6 text-cyan-50/90 sm:text-base">
+                Carga tu horario, consulta tus examenes, registra puntajes y usa
+                EduAI como apoyo para PDFs y contexto academico.
+              </p>
+            </div>
 
-          <div className="mt-10 grid gap-3 text-sm text-white/85">
-            <p>Horario desde Excel FPUNA</p>
-            <p>Chat con PDFs y contexto academico</p>
-            <p>Notas, tareas y examenes en el mismo panel</p>
-          </div>
-        </section>
+            <div className="mt-8 grid gap-3 text-sm sm:grid-cols-3 lg:mt-20 lg:grid-cols-1">
+              {[
+                'Horario desde Excel FPUNA',
+                'Notas y examenes conectados',
+                'Chat con PDFs y contexto propio',
+              ].map((item) => (
+                <div
+                  key={item}
+                  className="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-3 text-cyan-50"
+                >
+                  <CheckCircle2 size={18} />
+                  <span>{item}</span>
+                </div>
+              ))}
+            </div>
+          </section>
 
-        <section className="flex items-center justify-center p-5 sm:p-6 md:p-10">
-          <div className="w-full max-w-xl">
-            <p className="text-sm font-semibold uppercase tracking-wide text-[var(--edu-primary)]">
-              Acceso seguro
-            </p>
-            <h2 className="mt-2 text-3xl font-bold sm:text-4xl">{title}</h2>
-            <p className="mt-2 text-sm text-slate-500">
-              {subtitle}
-            </p>
+          <section className="mx-auto w-full max-w-[520px] rounded-[1.75rem] border border-white/60 bg-white/95 p-5 shadow-2xl backdrop-blur sm:p-7 lg:p-8">
+            <div className="mb-6 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[0.24em] text-[var(--edu-primary)]">
+                  Acceso seguro
+                </p>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">
+                  {title}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  {subtitle}
+                </p>
+              </div>
+              <div className="hidden h-12 w-12 shrink-0 place-items-center rounded-2xl bg-blue-50 text-blue-700 sm:grid">
+                {mode === 'signup' ? <UserPlus size={24} /> : <ShieldCheck size={24} />}
+              </div>
+            </div>
 
-            <div className="relative mt-6 grid grid-cols-4 gap-1 overflow-hidden rounded-xl bg-slate-100 p-1">
+            <div className="relative grid grid-cols-4 gap-1 overflow-hidden rounded-2xl bg-slate-100 p-1">
               <span
-                className="absolute bottom-1 top-1 z-0 rounded-lg bg-white shadow-sm transition-transform duration-300 ease-out"
+                className="absolute bottom-1 top-1 z-0 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-out"
                 style={{
                   width: `calc((100% - ${(authModeCount - 1) * 0.25}rem) / ${authModeCount})`,
                   transform: `translateX(calc(${modeIndex[mode]} * (100% + 0.25rem)))`,
@@ -466,7 +494,7 @@ export default function LoginPage() {
                 <button
                   key={authMode.mode}
                   onClick={() => switchMode(authMode.mode)}
-                  className={`relative z-10 rounded-lg px-2 py-2 text-[0.7rem] font-semibold transition-colors duration-300 sm:px-3 sm:text-sm ${
+                  className={`relative z-10 rounded-xl px-2 py-2.5 text-[0.68rem] font-bold transition-colors duration-300 sm:text-sm ${
                     mode === authMode.mode
                       ? 'text-[var(--edu-primary)]'
                       : 'text-slate-500 hover:text-slate-800'
@@ -477,7 +505,39 @@ export default function LoginPage() {
               ))}
             </div>
 
-            <div className="mt-8 space-y-4">
+            <div className="mt-6">
+              {googleClientId ? (
+                <div
+                  ref={googleButtonRef}
+                  className="flex min-h-12 w-full justify-center rounded-2xl border border-slate-200 bg-white p-1 shadow-sm"
+                />
+              ) : (
+                <button
+                  disabled
+                  className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-400 shadow-sm"
+                >
+                  <span className="grid h-7 w-7 place-items-center rounded-full border border-slate-200 bg-white text-sm font-bold text-blue-600">
+                    G
+                  </span>
+                  Continuar con Google
+                </button>
+              )}
+
+              {!googleClientId && (
+                <p className="mt-3 text-xs leading-5 text-slate-500">
+                  Google esta listo en la interfaz. Solo falta configurar el
+                  Client ID en las variables de entorno.
+                </p>
+              )}
+            </div>
+
+            <div className="my-6 flex items-center gap-3 text-sm text-slate-500">
+              <div className="h-px flex-1 bg-slate-200" />
+              <span>o usa tu correo</span>
+              <div className="h-px flex-1 bg-slate-200" />
+            </div>
+
+            <div className="space-y-4">
               {mode === 'signup' && (
                 <Field
                   label="Nombre"
@@ -564,23 +624,23 @@ export default function LoginPage() {
             </div>
 
             {message && (
-              <p className="mt-4 rounded-lg bg-emerald-50 p-3 text-sm text-emerald-700">
+              <p className="mt-4 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-700">
                 {message}
               </p>
             )}
 
             {error && (
-              <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+              <p className="mt-4 rounded-xl bg-red-50 p-3 text-sm text-red-700">
                 {error}
               </p>
             )}
 
-            <div className="mt-6 flex flex-col gap-4">
+            <div className="mt-6">
               {mode === 'login' && (
                 <button
                   onClick={handleLogin}
                   disabled={loading}
-                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3 text-base disabled:opacity-60"
+                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3.5 text-base disabled:opacity-60"
                 >
                   {loading && <Loader2 className="animate-spin" size={18} />}
                   <ShieldCheck size={18} />
@@ -592,7 +652,7 @@ export default function LoginPage() {
                 <button
                   onClick={handleSignup}
                   disabled={loading}
-                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3 text-base disabled:opacity-60"
+                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3.5 text-base disabled:opacity-60"
                 >
                   {loading && <Loader2 className="animate-spin" size={18} />}
                   <UserPlus size={18} />
@@ -604,7 +664,7 @@ export default function LoginPage() {
                 <button
                   onClick={handleResetPassword}
                   disabled={loading}
-                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3 text-base disabled:opacity-60"
+                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3.5 text-base disabled:opacity-60"
                 >
                   {loading && <Loader2 className="animate-spin" size={18} />}
                   Guardar nueva contrasena
@@ -615,48 +675,18 @@ export default function LoginPage() {
                 <button
                   onClick={handleVerifyEmail}
                   disabled={loading}
-                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3 text-base disabled:opacity-60"
+                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3.5 text-base disabled:opacity-60"
                 >
                   {loading && <Loader2 className="animate-spin" size={18} />}
                   <MailCheck size={18} />
                   Verificar correo
                 </button>
               )}
-
             </div>
-
-            <div className="my-7 flex items-center gap-3 text-sm text-slate-500">
-              <span>O continua con</span>
-              <div className="h-px flex-1 bg-slate-200" />
-            </div>
-
-            {googleClientId ? (
-              <div className="flex min-h-11 w-full justify-center rounded-xl border border-slate-200 bg-white p-1 shadow-sm">
-                <div ref={googleButtonRef} />
-              </div>
-            ) : (
-              <button
-                disabled
-                className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-5 py-3 font-semibold text-slate-400 shadow-sm"
-              >
-                <span className="grid h-7 w-7 place-items-center rounded-full border border-slate-200 bg-white text-sm font-bold text-blue-600">
-                  G
-                </span>
-                Continuar con Google
-              </button>
-            )}
-
-            {!googleClientId && (
-              <p className="mt-3 text-xs text-slate-500">
-                Para activar Google, configura NEXT_PUBLIC_GOOGLE_CLIENT_ID en
-                frontend y GOOGLE_CLIENT_ID en backend.
-              </p>
-            )}
-
-          </div>
-        </section>
+          </section>
+        </div>
       </div>
-    </div>
+    </main>
   );
 }
 

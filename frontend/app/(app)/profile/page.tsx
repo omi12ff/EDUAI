@@ -296,7 +296,7 @@ export default function ProfilePage() {
         />
         <ProfileMetric
           icon={<Clock size={24} />}
-          label="Tareas registradas"
+          label="Pendientes"
           value={profile?._count.assignments ?? 0}
         />
         <ProfileMetric
