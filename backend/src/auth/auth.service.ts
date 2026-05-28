@@ -7,7 +7,6 @@ import {
 import { Prisma, Role } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { MailService } from '../mail/mail.service';
 
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -15,8 +14,6 @@ import { GoogleLoginDto } from './dto/google-login.dto';
 import { RequestPasswordResetDto } from './dto/request-password-reset.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { RequestEmailVerificationDto } from './dto/request-email-verification.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
 
 import * as bcrypt from 'bcrypt';
 import { randomBytes } from 'crypto';
@@ -39,7 +36,6 @@ export class AuthService {
     lastLoginAt: true,
     bannedAt: true,
     bannedReason: true,
-    emailVerifiedAt: true,
     createdAt: true,
     updatedAt: true,
     _count: {
@@ -54,7 +50,6 @@ export class AuthService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-    private mailService: MailService,
   ) {}
 
   async register(dto: RegisterDto) {
@@ -80,16 +75,10 @@ export class AuthService {
       },
       select: this.publicUserSelect,
     });
-    const verification = await this.createEmailVerificationToken(
-      user.id,
-      user.email,
-    );
 
     return {
-      message:
-        'Cuenta creada. Te enviamos un enlace para verificar tu correo antes de iniciar sesion.',
+      message: 'Cuenta creada. Ya podes iniciar sesion.',
       user,
-      ...verification,
     };
   }
 
@@ -111,8 +100,6 @@ export class AuthService {
     if (!passwordMatch) {
       throw new UnauthorizedException('Invalid credentials');
     }
-
-    this.ensureEmailIsVerified(user);
 
     await this.prisma.user.update({
       where: {
@@ -156,7 +143,6 @@ export class AuthService {
           email: profile.email,
           password: temporaryPassword,
           role: usersCount === 0 ? Role.ADMIN : Role.STUDENT,
-          emailVerifiedAt: new Date(),
         },
       });
     }
@@ -169,89 +155,11 @@ export class AuthService {
       },
       data: {
         lastLoginAt: new Date(),
-        emailVerifiedAt: user.emailVerifiedAt ?? new Date(),
       },
     });
 
     return {
       access_token: this.signUserToken(user),
-    };
-  }
-
-  async requestEmailVerification(dto: RequestEmailVerificationDto) {
-    const user = await this.prisma.user.findUnique({
-      where: {
-        email: dto.email,
-      },
-    });
-
-    if (!user) {
-      return {
-        message:
-          'Si el correo existe y aun no esta verificado, se enviara un enlace de verificacion.',
-      };
-    }
-
-    this.ensureAccountIsActive(user);
-
-    if (user.emailVerifiedAt) {
-      return {
-        message: 'Este correo ya esta verificado. Ya podes iniciar sesion.',
-      };
-    }
-
-    const verification = await this.createEmailVerificationToken(
-      user.id,
-      user.email,
-    );
-
-    return {
-      message: 'Generamos un enlace de verificacion y lo enviamos a tu correo.',
-      ...verification,
-    };
-  }
-
-  async verifyEmail(dto: VerifyEmailDto) {
-    const verificationToken =
-      await this.prisma.emailVerificationToken.findUnique({
-        where: {
-          token: dto.token,
-        },
-        include: {
-          user: true,
-        },
-      });
-
-    if (
-      !verificationToken ||
-      verificationToken.usedAt ||
-      verificationToken.expiresAt < new Date()
-    ) {
-      throw new BadRequestException('Invalid or expired verification token');
-    }
-
-    await this.prisma.$transaction([
-      this.prisma.user.update({
-        where: {
-          id: verificationToken.userId,
-        },
-        data: {
-          emailVerifiedAt: verificationToken.user.emailVerifiedAt ?? new Date(),
-        },
-      }),
-      this.prisma.emailVerificationToken.update({
-        where: {
-          id: verificationToken.id,
-        },
-        data: {
-          usedAt: new Date(),
-        },
-      }),
-    ]);
-
-    return {
-      message: 'Correo verificado. Ya podes iniciar sesion.',
-      email: verificationToken.user.email,
     };
   }
 
@@ -371,53 +279,6 @@ export class AuthService {
     if (user.bannedAt) {
       throw new ForbiddenException('Account disabled');
     }
-  }
-
-  private ensureEmailIsVerified(user: { emailVerifiedAt: Date | null }) {
-    if (!user.emailVerifiedAt) {
-      throw new ForbiddenException(
-        'Tenes que verificar tu correo antes de iniciar sesion.',
-      );
-    }
-  }
-
-  private async createEmailVerificationToken(userId: string, email: string) {
-    const token = randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 1000 * 60 * 60 * 24);
-
-    await this.prisma.emailVerificationToken.create({
-      data: {
-        token,
-        expiresAt,
-        userId,
-      },
-    });
-
-    const verificationLink = this.buildVerificationLink(token);
-    const emailSent = await this.mailService.sendEmailVerification(
-      email,
-      verificationLink,
-    );
-
-    if (process.env.NODE_ENV === 'production') {
-      return {
-        emailSent,
-        expiresAt,
-      };
-    }
-
-    return {
-      verificationToken: token,
-      verificationLink,
-      emailSent,
-      expiresAt,
-    };
-  }
-
-  private buildVerificationLink(token: string) {
-    const frontendUrl = process.env.FRONTEND_URL ?? 'http://localhost:3000';
-
-    return `${frontendUrl.replace(/\/$/, '')}/login?verifyToken=${token}`;
   }
 
   private buildProfileUpdate(dto: UpdateProfileDto) {

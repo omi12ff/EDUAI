@@ -19,7 +19,6 @@ interface AdminUser {
   lastLoginAt: string | null;
   bannedAt: string | null;
   bannedReason: string | null;
-  emailVerifiedAt: string | null;
   createdAt: string;
   _count: {
     subjects: number;
@@ -237,15 +236,6 @@ export default function AdminPage() {
                   </span>
                   <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold uppercase text-blue-700">
                     {roleLabel(user.role)}
-                  </span>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold uppercase ${
-                      user.emailVerifiedAt
-                        ? 'bg-cyan-50 text-cyan-700'
-                        : 'bg-amber-50 text-amber-700'
-                    }`}
-                  >
-                    {user.emailVerifiedAt ? 'Email verificado' : 'Sin verificar'}
                   </span>
                 </div>
 

@@ -8,7 +8,6 @@ import {
   Loader2,
   LockKeyhole,
   Mail,
-  MailCheck,
   ShieldCheck,
   UserPlus,
 } from 'lucide-react';
@@ -17,7 +16,7 @@ import { useRouter } from 'next/navigation';
 import { api, getApiErrorMessage } from '@/services/api';
 import { useAuthStore } from '@/store/auth.store';
 
-type AuthMode = 'login' | 'signup' | 'reset' | 'verify';
+type AuthMode = 'login' | 'signup' | 'reset';
 
 declare global {
   interface Window {
@@ -51,7 +50,6 @@ const modeIndex: Record<AuthMode, number> = {
   login: 0,
   signup: 1,
   reset: 2,
-  verify: 3,
 };
 
 const authModes: Array<{
@@ -70,10 +68,6 @@ const authModes: Array<{
     mode: 'reset',
     label: 'Recuperar',
   },
-  {
-    mode: 'verify',
-    label: 'Verificar',
-  },
 ];
 
 const authModeCount = authModes.length;
@@ -90,7 +84,6 @@ export default function LoginPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [resetToken, setResetToken] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [verificationToken, setVerificationToken] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleReady, setGoogleReady] = useState(false);
   const [message, setMessage] = useState('');
@@ -99,7 +92,6 @@ export default function LoginPage() {
   const title = useMemo(() => {
     if (mode === 'signup') return 'Crear cuenta';
     if (mode === 'reset') return 'Recuperar contrasena';
-    if (mode === 'verify') return 'Verificar correo';
     return 'Iniciar sesion';
   }, [mode]);
 
@@ -110,10 +102,6 @@ export default function LoginPage() {
 
     if (mode === 'reset') {
       return 'Genera un token temporal y define una nueva contrasena.';
-    }
-
-    if (mode === 'verify') {
-      return 'Pega el token recibido para activar tu cuenta.';
     }
 
     return 'Usa tu correo o continua con tu cuenta de Google.';
@@ -131,9 +119,6 @@ export default function LoginPage() {
     setConfirmPassword('');
     setResetToken('');
     setNewPassword('');
-    if (nextMode !== 'verify') {
-      setVerificationToken('');
-    }
   }
 
   async function handleLogin() {
@@ -188,13 +173,8 @@ export default function LoginPage() {
 
       setPassword('');
       setConfirmPassword('');
-      setVerificationToken(response.data.verificationToken ?? '');
-      setMode('verify');
-      setMessage(
-        response.data.verificationToken
-          ? `Cuenta creada. Token de desarrollo: ${response.data.verificationToken}`
-          : response.data.message,
-      );
+      setMode('login');
+      setMessage(response.data.message ?? 'Cuenta creada. Ya podes iniciar sesion.');
     } catch (signupError) {
       setError(
         getApiErrorMessage(
@@ -232,68 +212,6 @@ export default function LoginPage() {
         getApiErrorMessage(
           resetError,
           'No pude generar el reinicio de contrasena.',
-        ),
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleRequestEmailVerification() {
-    if (!email) {
-      setError('Escribe tu email para reenviar la verificacion.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      clearFeedback();
-
-      const response = await api.post('/auth/email-verification/request', {
-        email,
-      });
-
-      setVerificationToken(response.data.verificationToken ?? '');
-      setMode('verify');
-      setMessage(
-        response.data.verificationToken
-          ? `Token de desarrollo: ${response.data.verificationToken}`
-          : response.data.message,
-      );
-    } catch (verificationError) {
-      setError(
-        getApiErrorMessage(
-          verificationError,
-          'No pude generar la verificacion de correo.',
-        ),
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleVerifyEmail() {
-    if (!verificationToken) {
-      setError('Pega el token de verificacion.');
-      return;
-    }
-
-    try {
-      setLoading(true);
-      clearFeedback();
-
-      const response = await api.post('/auth/email-verification/confirm', {
-        token: verificationToken,
-      });
-
-      setVerificationToken('');
-      setMode('login');
-      setMessage(response.data.message ?? 'Correo verificado. Ya podes iniciar sesion.');
-    } catch (verificationError) {
-      setError(
-        getApiErrorMessage(
-          verificationError,
-          'El token de verificacion no es valido o ya expiro.',
         ),
       );
     } finally {
@@ -376,18 +294,6 @@ export default function LoginPage() {
     script.defer = true;
     script.onload = () => setGoogleReady(Boolean(window.google));
     document.body.appendChild(script);
-  }, []);
-
-  useEffect(() => {
-    const token = new URLSearchParams(window.location.search).get('verifyToken');
-
-    if (!token) {
-      return;
-    }
-
-    setVerificationToken(token);
-    setMode('verify');
-    setMessage('Detecte un token de verificacion en el enlace. Confirmalo para activar la cuenta.');
   }, []);
 
   useEffect(() => {
@@ -481,7 +387,7 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <div className="relative grid grid-cols-4 gap-1 overflow-hidden rounded-2xl bg-slate-100 p-1">
+            <div className="relative grid grid-cols-3 gap-1 overflow-hidden rounded-2xl bg-slate-100 p-1">
               <span
                 className="absolute bottom-1 top-1 z-0 rounded-xl bg-white shadow-sm transition-transform duration-300 ease-out"
                 style={{
@@ -555,7 +461,7 @@ export default function LoginPage() {
                 icon={<Mail size={18} />}
               />
 
-              {mode !== 'reset' && mode !== 'verify' && (
+              {mode !== 'reset' && (
                 <Field
                   label="Contrasena"
                   value={password}
@@ -603,24 +509,6 @@ export default function LoginPage() {
                 </div>
               )}
 
-              {mode === 'verify' && (
-                <div className="grid gap-4">
-                  <Field
-                    label="Token de verificacion"
-                    value={verificationToken}
-                    onChange={setVerificationToken}
-                    placeholder="Pega el token recibido por correo"
-                  />
-
-                  <button
-                    onClick={handleRequestEmailVerification}
-                    disabled={loading}
-                    className="edu-button-secondary w-full px-5 py-3 disabled:opacity-60"
-                  >
-                    Reenviar verificacion
-                  </button>
-                </div>
-              )}
             </div>
 
             {message && (
@@ -671,17 +559,6 @@ export default function LoginPage() {
                 </button>
               )}
 
-              {mode === 'verify' && (
-                <button
-                  onClick={handleVerifyEmail}
-                  disabled={loading}
-                  className="edu-button flex w-full items-center justify-center gap-2 px-5 py-3.5 text-base disabled:opacity-60"
-                >
-                  {loading && <Loader2 className="animate-spin" size={18} />}
-                  <MailCheck size={18} />
-                  Verificar correo
-                </button>
-              )}
             </div>
           </section>
         </div>

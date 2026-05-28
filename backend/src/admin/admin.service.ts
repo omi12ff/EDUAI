@@ -23,7 +23,6 @@ export class AdminService {
     lastLoginAt: true,
     bannedAt: true,
     bannedReason: true,
-    emailVerifiedAt: true,
     createdAt: true,
     updatedAt: true,
     _count: {

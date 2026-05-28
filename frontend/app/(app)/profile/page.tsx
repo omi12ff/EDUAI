@@ -17,7 +17,6 @@ interface Profile {
   career: string | null;
   lastLoginAt: string | null;
   bannedAt: string | null;
-  emailVerifiedAt: string | null;
   createdAt: string;
   _count: {
     subjects: number;
@@ -224,10 +223,6 @@ export default function ProfilePage() {
 
           <div className="grid gap-3 text-sm">
             <InfoRow label="Estado" value={profile?.bannedAt ? 'Bloqueado' : 'Activo'} />
-            <InfoRow
-              label="Correo"
-              value={profile?.emailVerifiedAt ? 'Verificado' : 'Pendiente'}
-            />
             <InfoRow label="Ultimo acceso" value={formatDate(profile?.lastLoginAt ?? null)} />
             <InfoRow label="Cuenta creada" value={formatDate(profile?.createdAt ?? null)} />
           </div>
