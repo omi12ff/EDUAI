@@ -140,6 +140,20 @@ body {
     padding: 0.25rem 0.65rem;
   }
 
+  .google-auth-button > div {
+    margin-inline: auto !important;
+    max-width: 420px;
+    width: min(100%, 420px) !important;
+  }
+
+  .google-auth-button iframe {
+    display: block;
+    margin-inline: auto !important;
+    max-width: 420px;
+    width: 100% !important;
+    border-radius: 1rem !important;
+  }
+
   .edu-topbar {
     background: linear-gradient(135deg, #1d4ed8, #0f766e);
     color: white;

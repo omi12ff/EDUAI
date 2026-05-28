@@ -313,7 +313,7 @@ export default function LoginPage() {
       size: 'large',
       text: mode === 'signup' ? 'signup_with' : 'continue_with',
       shape: 'pill',
-      width: Math.min(390, Math.max(280, googleButtonRef.current.clientWidth)),
+      width: Math.max(280, Math.round(googleButtonRef.current.clientWidth)),
     });
   }, [googleReady, handleGoogleCredential, mode]);
 
@@ -415,12 +415,12 @@ export default function LoginPage() {
               {googleClientId ? (
                 <div
                   ref={googleButtonRef}
-                  className="flex min-h-12 w-full justify-center rounded-2xl border border-slate-200 bg-white p-1 shadow-sm"
+                  className="google-auth-button flex min-h-12 w-full justify-center overflow-hidden rounded-2xl transition duration-200 hover:-translate-y-0.5 hover:drop-shadow-md"
                 />
               ) : (
                 <button
                   disabled
-                  className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3 font-semibold text-slate-400 shadow-sm"
+                  className="flex w-full cursor-not-allowed items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-3.5 font-semibold text-slate-400 shadow-sm"
                 >
                   <span className="grid h-7 w-7 place-items-center rounded-full border border-slate-200 bg-white text-sm font-bold text-blue-600">
                     G
